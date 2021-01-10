@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <bitset>
-
+#include "spdlog_include_dir/spdlog/spdlog.h"
 #include "asio_include_dir/asio.hpp"
 #include "cli11_include_dir/CLI11.hpp"
 
@@ -36,6 +36,7 @@ vector<bitset<7>> convertAsciiToBinary(string asciis){
 vector<bitset<8>> onedParitaet(vector<bitset<7>> asciibits){
     vector<bitset<8>> onedParitaet{};
     for(auto bits: asciibits){
+        //cout << bits.to_string() << endl;
         int countOnes{0};
         for(auto bit: bits.to_string()){
             if(bit == '1'){
@@ -137,8 +138,9 @@ int main(int argc, char *argv[]) {
 
     vector<bitset<7>> asciibits{convertAsciiToBinary(ascii)};
     vector<bitset<80>> blocks{addParitaetToBits(asciibits)};
-    if(!checkBlcoks(blocks)){
-        cerr << "ERROR-Detection Failed!!" << endl;
+    if(!checkBlocks(blocks)){
+        cerr << "ASCII-Block ERROR-Detection Failed!!" << endl;
+        spdlog::log(spdlog::level::level_enum::err, "ASCII-Block ERROR-Detection Failed!!");
     }
 
     asio::io_context ctx;
@@ -151,12 +153,16 @@ int main(int argc, char *argv[]) {
     tcp::iostream strm{std::move(sock)};
 
     if (strm){
+        spdlog::log(spdlog::level::level_enum::info, "Sending ASCII-Block to client!");
         for(auto block : blocks){
             strm << block;
             this_thread::sleep_for(1s);
         }
         this_thread::sleep_for(4s);
         strm.close();
+    } else {
+        spdlog::log(spdlog::level::level_enum::err, strm.error().message());
+        spdlog::log(spdlog::level::level_enum::err, "Error while establishing connection with client!");
     }
 
     return 0;
