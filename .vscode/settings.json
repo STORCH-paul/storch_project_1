@@ -1,5 +1,14 @@
 {
     "files.associations": {
-        "xiosbase": "cpp"
+        "xiosbase": "cpp",
+        "future": "cpp",
+        "list": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp",
+        "iostream": "cpp",
+        "type_traits": "cpp",
+        "xutility": "cpp",
+        "*.ipp": "cpp",
+        "bitset": "cpp"
     }
 }
