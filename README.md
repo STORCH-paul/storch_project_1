@@ -19,13 +19,16 @@ $ninja
 ## Usage samples
 
 #### Basic usage
-
+```
 $ cd build
 $ ./server ASCII-Text Test
 $ ./client
+```
 
 #### Change Port
 
+```
 $ cd build
 $ ./server ASCII-Text Test -p 2121
 $ ./client -p 2121
+```
