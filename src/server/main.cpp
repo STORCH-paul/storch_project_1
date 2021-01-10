@@ -131,8 +131,8 @@ bool checkBlocks(vector<bitset<80>> blocks){
 int main(int argc, char *argv[]) {
     CLI::App app("Client for ASCII-Code transfer");
     u_short port{8888};
-    string ascii{};
-    app.add_option("ASCII", ascii, "Message in ASCII character")->required()->check(check_callable);
+    string ascii{"Text Example"};
+    app.add_option("ASCII-Text", ascii, "Message in ASCII character")->check(check_callable);
     app.add_option("-p,--port", port, "Port for hosting!");
     CLI11_PARSE(app, argc, argv);
 
