@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <bitset>
+
 #include "spdlog_include_dir/spdlog/spdlog.h"
 #include "asio_include_dir/asio.hpp"
 #include "cli11_include_dir/CLI11.hpp"
@@ -14,7 +15,7 @@ using namespace asio::ip;
 
 
 
-string check_callable(const string& message){
+string check_callable(const string& message){ // Überprüft ob ilegale Zeichen vorhanden sind
     string checklist{" !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"};
     size_t check{message.find_first_not_of(checklist)};
     if(check == string::npos){
@@ -25,7 +26,7 @@ string check_callable(const string& message){
     }  
 }
 
-vector<bitset<7>> convertAsciiToBinary(string asciis){
+vector<bitset<7>> convertAsciiToBinary(string asciis){ // Convertiert Ascii in 7-Bits
     vector<bitset<7>> asciivector{};
     for(char ascii: asciis){
         asciivector.push_back(ascii);
@@ -33,7 +34,7 @@ vector<bitset<7>> convertAsciiToBinary(string asciis){
     return asciivector;
 }
 
-vector<bitset<8>> onedParitaet(vector<bitset<7>> asciibits){
+vector<bitset<8>> onedParitaet(vector<bitset<7>> asciibits){ // Falls die Summe der positiven Bits ungerade ist, wird diese durch den Algorithmus mit einem positiven Bit zu einer geraden Summe gebracht.
     vector<bitset<8>> onedParitaet{};
     for(auto bits: asciibits){
         //cout << bits.to_string() << endl;
@@ -44,7 +45,7 @@ vector<bitset<8>> onedParitaet(vector<bitset<7>> asciibits){
             }
         }
         if(countOnes % 2 == 1){
-            bitset<8> temp(bits.to_string() + bitset<1>(0x1).to_string());
+            bitset<8> temp(bits.to_string() + bitset<1>(0x1).to_string()); 
             onedParitaet.push_back(temp);
         }else {
             bitset<8> temp(bits.to_string() + bitset<1>(0x0).to_string());
@@ -54,7 +55,7 @@ vector<bitset<8>> onedParitaet(vector<bitset<7>> asciibits){
     return onedParitaet;
 }
 
-vector<bitset<80>> twodParitaet(vector<bitset<8>> onedParitaet){
+vector<bitset<80>> twodParitaet(vector<bitset<8>> onedParitaet){ //Fügt bei jedem block 8-Bits hinzu abhängig von der Summe der positiven Bits.
     vector<bitset<80>> block{};
     vector<int> countOnes{0,0,0,0,0,0,0,0};
     string blockstring{};
@@ -96,12 +97,12 @@ vector<bitset<80>> twodParitaet(vector<bitset<8>> onedParitaet){
     return block;
 }
 
-vector<bitset<80>> addParitaetToBits(vector<bitset<7>> asciibits){
+vector<bitset<80>> addParitaetToBits(vector<bitset<7>> asciibits){ // Combiniert die Zwei Paritäts Funktionen
     vector<bitset<80>> blocks{twodParitaet(onedParitaet(asciibits))};
     return blocks;
 }
 
-bool checkBlocks(vector<bitset<80>> blocks){
+bool checkBlocks(vector<bitset<80>> blocks){ // Zum überprüfen ob bei der Parität fehler gemacht wurden
     for(auto block : blocks){
         vector<int> countOnes{0,0,0,0,0,0,0,0};
         int counter{0};
@@ -129,7 +130,7 @@ bool checkBlocks(vector<bitset<80>> blocks){
 }
 
 int main(int argc, char *argv[]) {
-    CLI::App app("Client for ASCII-Code transfer");
+    CLI::App app("Client for sending ASCII");
     u_short port{8888};
     string ascii{"Text Example"};
     app.add_option("ASCII-Text", ascii, "Message in ASCII character")->check(check_callable);
@@ -144,7 +145,7 @@ int main(int argc, char *argv[]) {
     }
 
     asio::io_context ctx;
-    tcp::endpoint ep{tcp::v4(), 8888};
+    tcp::endpoint ep{tcp::v4(), port};
     tcp::acceptor acceptor{ctx, ep};
     acceptor.listen();
 
@@ -160,6 +161,7 @@ int main(int argc, char *argv[]) {
         }
         this_thread::sleep_for(4s);
         strm.close();
+        spdlog::log(spdlog::level::level_enum::info, "Connection closed!");
     } else {
         spdlog::log(spdlog::level::level_enum::err, strm.error().message());
         spdlog::log(spdlog::level::level_enum::err, "Error while establishing connection with client!");
